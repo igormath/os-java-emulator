@@ -28,42 +28,38 @@ public class PhysicalAndSwapMemory {
 
     // pageTable == valor que está salvo
     public int moveToSwap(int value){
-        int index = 0;
         for (int i = 0; i < swapMemory.size(); i++) {
-            if (swapMemory.get(i) == null){
-                swapMemory.add(i, value);
-                index = i;
+            if (swapMemory.get(i) == null) {
+                swapMemory.set(i, value);
+                System.out.println("O valor " + value + " foi movido para o índice " + i + " da memória SWAP");
+                return i;
             }
         }
-        return index;
+        return -1; // Indica que a memória SWAP está cheia
     }
 
     // pageTable == valor que está salvo
     public int addToPhysical(int value){
-        int index = -1, pointer = 0;
-        do{
-            // Loop que varre a memória física de forma circular até achar espaço.
-            if (physicalMemory.get(pointer) == null){
-                physicalMemory.add(pointer, value);
-                index = pointer;
+        for (int i = 0; i < physicalMemory.size(); i++) {
+            if (physicalMemory.get(i) == null) {
+                physicalMemory.set(i, value);
+                return i;
             }
-            pointer = (pointer + 1) % physicalMemory.size();
-        } while (index == - 1);
-        return index;
+        }
+        return -1; // Indica que a memória física está cheia
     }
 
     public int moveFromSwapToPhysical(int swapIndex){
         int value = swapMemory.get(swapIndex);
-        int index = -1, pointer = 0;
-        do{
-            if (physicalMemory.get(pointer) == null){
-                physicalMemory.add(pointer, value);
-                swapMemory.add(swapIndex, null);
-                index = pointer;
+        for (int i = 0; i < physicalMemory.size(); i++) {
+            if (physicalMemory.get(i) == null) {
+                physicalMemory.set(i, value);
+                swapMemory.set(swapIndex, null);
+                System.out.println("O valor " + value + " que estava no SWAP foi movido para a memória física.");
+                return i;
             }
-            pointer = (pointer + 1) % physicalMemory.size();
-        } while (index == - 1);
-        return index;
+        }
+        return -1; // Indica que a memória física está cheia
     }
 
     public List<Integer> getPhysicalMemory() {

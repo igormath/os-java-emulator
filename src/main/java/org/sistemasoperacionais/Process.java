@@ -17,9 +17,9 @@ public class Process extends Thread{
     public void run(){
         for (String instruction : instructions) {
             String[] splitedInstructions = instruction.split("-");
-            if (splitedInstructions[1] == "R"){
+            if (splitedInstructions[1].equals("R")){
                 os.read(threadNumber, Integer.parseInt(splitedInstructions[0]));
-            } else if (splitedInstructions[1] == "W") {
+            } else if (splitedInstructions[1].equals("W")) {
                 os.write(threadNumber, Integer.parseInt(splitedInstructions[2]));
             }
         }

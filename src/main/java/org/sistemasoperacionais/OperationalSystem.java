@@ -20,12 +20,6 @@ public class OperationalSystem {
 
     public void startSecondChanceAlgorithm(){
         secondChanceAlgorithm.start();
-        try {
-            // Esperar a thread terminar
-            secondChanceAlgorithm.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     public void read(int threadNumber, int virtualIndex){
@@ -36,7 +30,7 @@ public class OperationalSystem {
              System.out.print(" acessou o endereço " + virtualPage.getPageTable());
              if (virtualPage.isPresent()){
                  // Se o valor estiver salvo na memória física
-                 System.out.print(" que possui o valor " + physicalAndSwapMemory.getPhysicalMemory().get(virtualPage.getPageTable()) + " na memória física.");
+                 System.out.println(" que possui o valor " + physicalAndSwapMemory.getPhysicalMemory().get(virtualPage.getPageTable()) + " na memória física.");
              } else {
                  // Se não estiver, temos que mover o valor da swap para a memória física.
                  int physicalIndex = physicalAndSwapMemory.moveFromSwapToPhysical(virtualPage.getPageTable());
@@ -52,16 +46,19 @@ public class OperationalSystem {
     }
 
     public void write(int threadNumber, int value){
-        for (VirtualPage virtualPage : virtualMemory.getVirtualMemory()) {
-            // Se existir espaço na memória física:
-            if (virtualPage == null){
-                // Informa que o item está referenciado (ocorreu acesso recente)
-                virtualPage.setReferenced(true);
-                // Informa que o item está presente na memória física
-                virtualPage.setPresent(true);
-                // Muda o índice para o qual a página está apontando.
-                virtualPage.setPageTable(physicalAndSwapMemory.addToPhysical(value));
+        boolean wrote = false;
+        for (int i = 0; i < virtualMemory.getVirtualMemory().size(); i++) {
+            VirtualPage virtualPage = virtualMemory.getVirtualMemory().get(i);
+            if (virtualPage == null) {
+                virtualPage = new VirtualPage(true, true, physicalAndSwapMemory.addToPhysical(value));
+                virtualMemory.getVirtualMemory().set(i, virtualPage);
+                wrote = true;
+                System.out.println("A thread " + threadNumber + " escreveu o valor " + value + " no endereço " + i);
+                break;
             }
+        }
+        if (!wrote) {
+            System.out.println("A thread " + threadNumber + " não conseguiu escrever o valor " + value + " porque a memória virtual está cheia.");
         }
     }
 }
