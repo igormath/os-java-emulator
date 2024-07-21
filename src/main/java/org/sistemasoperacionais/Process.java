@@ -1,26 +1,29 @@
 package org.sistemasoperacionais;
 
 public class Process extends Thread{
-
-    private OperationalSystem os;
-    //{"4-R", "5-R", "0-R", "4-W-2"};
-    private String[] instructions;
+    private String[] inputArray;
     private int threadNumber;
+    private IOperationalSystem os;
 
-    public Process(String[] instructions, OperationalSystem os, int threadNumber) {
-        this.instructions = instructions;
+    public Process(String[] inputArray, IOperationalSystem os, int threadNumber) {
+        this.inputArray = inputArray;
         this.os = os;
         this.threadNumber = threadNumber;
     }
 
     @Override
-    public void run(){
-        for (String instruction : instructions) {
-            String[] splitedInstructions = instruction.split("-");
-            if (splitedInstructions[1].equals("R")){
-                os.read(threadNumber, Integer.parseInt(splitedInstructions[0]));
-            } else if (splitedInstructions[1].equals("W")) {
-                os.write(threadNumber, Integer.parseInt(splitedInstructions[2]));
+    public void run() {
+        for (String s : inputArray) {
+            try {
+                Thread.sleep(100);
+                String[] operation = s.split("-");
+                if (operation[1].equals("R")){
+                    os.read(Integer.parseInt(operation[0]), threadNumber);
+                } else if (operation[1].equals("W")) {
+                    os.write(Integer.parseInt(operation[0]), Integer.parseInt(operation[2]) ,threadNumber);
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
     }

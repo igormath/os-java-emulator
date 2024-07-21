@@ -1,52 +1,58 @@
 package org.sistemasoperacionais;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class SecondChanceAlgorithm extends Thread{
-
-    private int sleepTime;
+public class SecondChanceAlgorithm{
+    private List<Integer> fifoOrder;
     private VirtualMemory virtualMemory;
-    private PhysicalAndSwapMemory physicalAndSwapMemory;
+    private IAccess acesso;
 
-    public SecondChanceAlgorithm(PhysicalAndSwapMemory physicalAndSwapMemory, int sleepTime, VirtualMemory virtualMemory) {
-        this.physicalAndSwapMemory = physicalAndSwapMemory;
-        this.sleepTime = sleepTime;
+    public SecondChanceAlgorithm(int virtualMemorySize, VirtualMemory virtualMemory, IAccess acesso) {
+        fifoOrder = new ArrayList<>(virtualMemorySize);
         this.virtualMemory = virtualMemory;
+        this.acesso = acesso;
     }
 
-    private List<VirtualPage> virtualMemoryList;
-    private List<Integer> swapMemory;
+    public void addFifoOrder(int virtualIndex){
+        fifoOrder.add(virtualIndex);
+    }
 
-    public void run(){
-        virtualMemoryList = virtualMemory.getVirtualMemory();
-        System.out.println("Algoritmo de segunda chance iniciado!");
-        while (true){
-            try {
-                Thread.sleep(sleepTime * 1000L);
-                synchronized (virtualMemoryList) {
-                    for (int i = 0; i < virtualMemoryList.size(); i++) {
-                        if (virtualMemoryList.get(i) != null) {
-                            if (virtualMemoryList.get(i).isReferenced()) {
-                                virtualMemoryList.get(i).setReferenced(false);
-                            }
-                            if (!virtualMemoryList.get(i).isReferenced() && virtualMemoryList.get(i).isPresent()) {
-                                // Remove o valor do Array List que representa a memória física
-                                int value = physicalAndSwapMemory.getPhysicalMemory().get(virtualMemoryList.get(i).getPageTable());
-                                // Adiciona esse valor a memória SWAP
-                                int swapIndex = physicalAndSwapMemory.moveToSwap(value);
-                                // Limpa a posição na memória física
-                                physicalAndSwapMemory.getPhysicalMemory().add(virtualMemoryList.get(i).getPageTable(), null);
-                                // Muda a presença para falso (indica que o valor está salvo na memória SWAP)
-                                virtualMemoryList.get(i).setPresent(false);
-                                // Atualiza o mapeamento com a nova posição na memória virtual
-                                virtualMemoryList.get(i).setPageTable(swapIndex);
-                            }
-                        }
-                    }
-                }
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+    public List<Integer> getFifoOrder() {
+        return fifoOrder;
+    }
+
+    public void runSecondChance(){
+        if (fifoOrder.isEmpty()){
+            return;
+        }
+
+        for (int i = 0; i < fifoOrder.size(); i++){
+            int index = fifoOrder.get(i);
+            Page page = virtualMemory.getVirtualMemory().get(index);
+
+            if (page == null){
+                fifoOrder.remove(i);
+            }
+
+            for (Integer integer : fifoOrder) {
+                System.out.println("Índice: " + integer);
+            }
+
+            if (page.isReferenced()){
+                // Segunda chance. O booleano que guarda se a página foi acessada recentemente é alterada para falso
+                // e a página é jogada para o fim da fila FIFO.
+                page.setReferenced(false);
+                fifoOrder.add(fifoOrder.remove(i));
+                System.out.println("A página de pageTable " + page.getPageTable() + " foi enviada para o fim da fila FIFO.");
+            } else {
+                // Enviar para swap e "desreferenciar".
+                acesso.moveToSwap(page.getPageTable());
+                fifoOrder.remove(i);
+                // executar método que envia para SWAP.
+                break;
             }
         }
     }
 }
+

@@ -1,6 +1,6 @@
 package org.sistemasoperacionais;
 
-public class VirtualPage {
+public class Page {
     // Se ocorreu acesso recente
     private boolean isReferenced;
     // Se está alocada na memória física
@@ -8,9 +8,9 @@ public class VirtualPage {
     // Endereço em que está salva
     private int pageTable;
 
-    public VirtualPage(boolean isReferenced, boolean isPresent, int pageTable) {
-        this.isReferenced = isReferenced;
+    public Page(boolean isPresent, boolean isReferenced, int pageTable) {
         this.isPresent = isPresent;
+        this.isReferenced = isReferenced;
         this.pageTable = pageTable;
     }
 
