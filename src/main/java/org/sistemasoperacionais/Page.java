@@ -6,12 +6,18 @@ public class Page {
     // Se está alocada na memória física
     private boolean isPresent;
     // Endereço em que está salva
-    private int pageTable;
+    private Integer pageTable;
 
-    public Page(boolean isPresent, boolean isReferenced, int pageTable) {
+    public Page(boolean isPresent, boolean isReferenced, Integer pageTable) {
         this.isPresent = isPresent;
         this.isReferenced = isReferenced;
         this.pageTable = pageTable;
+    }
+
+    public Page() {
+        this.isReferenced = false;
+        this.isPresent = false;
+        this.pageTable = null;
     }
 
     public boolean isPresent() {
@@ -30,7 +36,7 @@ public class Page {
         isReferenced = referenced;
     }
 
-    public int getPageTable() {
+    public Integer getPageTable() {
         return pageTable;
     }
 
