@@ -15,8 +15,10 @@ public class SecondChanceAlgorithm {
     }
 
     public void addFifoOrder(int virtualIndex) {
-        fifoOrder.add(virtualIndex);
-        System.out.println("Índice adicionado à lista FIFO: " + virtualIndex);
+        if (!fifoOrder.contains(virtualIndex)){
+            fifoOrder.add(virtualIndex);
+            System.out.println("Índice adicionado à lista FIFO: " + virtualIndex);
+        }
     }
 
     public int getFifoOrderSize(){
@@ -24,20 +26,16 @@ public class SecondChanceAlgorithm {
     }
 
     public void runSecondChance() {
-        System.out.println("Executando runSecondChance...");
         System.out.println("Estado atual da lista FIFO: " + fifoOrder);
         if (fifoOrder.isEmpty()) {
-            System.out.println("Lista FIFO está vazia. Nenhuma ação necessária.");
             return;
         }
 
-        System.out.println("Conseguiu entrar no bloco de execução do algoritmo de Segunda Chance.");
         for (int i = 0; i < fifoOrder.size(); i++) {
             int index = fifoOrder.get(i);
             Page page = virtualMemory.getVirtualMemoryPage(index);
 
             if (page == null) {
-                System.out.println("Página nula para índice: " + index);
                 fifoOrder.remove(i);
                 i--; // Para ajustar o índice após a remoção
                 continue;
