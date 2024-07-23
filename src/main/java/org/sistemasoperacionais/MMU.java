@@ -11,20 +11,26 @@ public class MMU implements IMMU, ClockListener {
         this.physicalMemory = physicalMemory;
         this.swapMemory = swapMemory;
         this.virtualMemory = virtualMemory;
-        algorithm = new SecondChanceAlgorithm(virtualMemory, physicalMemory, swapMemory);
+        algorithm = new SecondChanceAlgorithm(virtualMemory);
     }
 
-    // Adicionar retorno com o write.
     public Integer write(int virtualIndex, int value, int threadId) {
         Integer freeIndexPhysical = physicalMemory.getFreeIndexPhysical();
+        int virtualMemorySize = virtualMemory.getVirtualMemorySize();
+        // Lógica de "conversão" de índices entre as threads.
+        if (threadId == 2){
+            virtualIndex += (virtualMemorySize / 2);
+        }
+
         algorithm.addFifoOrder(virtualIndex);
+
         if (freeIndexPhysical != null) {
             virtualMemory.setVirtualMemoryPage(new Page(true, true, freeIndexPhysical), virtualIndex);
             physicalMemory.setValuePhysical(freeIndexPhysical, value);
             return freeIndexPhysical;
         } else {
             algorithm.runSecondChance();
-            for (int i = 0; i < algorithm.getFifoOrder().size(); i++) {
+            for (int i = 0; i < algorithm.getFifoOrderSize(); i++) {
                 Page page = virtualMemory.getVirtualMemoryPage(i);
                 // Acha uma página que não foi referenciada para movê-la para o swap.
                 if (!page.isReferenced()){
@@ -46,9 +52,12 @@ public class MMU implements IMMU, ClockListener {
         }
         return null;
     }
-    // Adicionar retorno com o valor.
+
     public Integer read(int virtualIndex, int threadId) {
         Page page = virtualMemory.getVirtualMemoryPage(virtualIndex);
+
+        algorithm.addFifoOrder(virtualIndex);
+
         if (page.isPresent()) {
             Integer value = physicalMemory.getValuePhysical(page.getPageTable());
             page.setReferenced(true);
@@ -56,19 +65,19 @@ public class MMU implements IMMU, ClockListener {
         } else {
             Integer freeIndexPhysical = physicalMemory.getFreeIndexPhysical();
             Integer value = swapMemory.getValueSwap(page.getPageTable());
-            // Se a página não estiver presente mas existir espaço na memória física
             if (freeIndexPhysical != null) {
+                // Se a página não estiver presente mas existir espaço na memória física
                 swapMemory.setValueSwap(page.getPageTable(), null);
                 physicalMemory.setValuePhysical(freeIndexPhysical, value);
                 page.setPageTable(freeIndexPhysical);
                 page.setPresent(true);
                 page.setReferenced(true);
                 return value;
-                // Se a página não estiver presente e não existir espaço na memória física
             } else {
+                // Se a página não estiver presente e não existir espaço na memória física
                 // Roda algoritmo segunda chance para arrumar espaço na memória física.
                 algorithm.runSecondChance();
-                for (int i = 0; i < algorithm.getFifoOrder().size(); i++) {
+                for (int i = 0; i < algorithm.getFifoOrderSize(); i++) {
                     Page fifoPage = virtualMemory.getVirtualMemoryPage(i);
                     if (!fifoPage.isReferenced()){
                         // -- MOVENDO VALOR PARA A SWAP --

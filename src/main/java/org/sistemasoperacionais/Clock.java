@@ -12,9 +12,9 @@ public class Clock extends Thread {
     public void run() {
         try {
             while (true) {
-                Thread.sleep(sleepTime * 1000L);
                 System.out.println("Clock executando runSecondChance...");
                 cl.tick();
+                Thread.sleep(sleepTime * 1000L);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
