@@ -20,6 +20,8 @@ public class SecondChanceAlgorithm {
 
     public void addFifoOrder(int virtualIndex) {
         fifoOrder.add(virtualIndex);
+        System.out.println("Índice adicionado à lista FIFO: " + virtualIndex);
+        System.out.println("Lista FIFO atual: " + fifoOrder);
     }
 
     public List<Integer> getFifoOrder() {
@@ -27,26 +29,30 @@ public class SecondChanceAlgorithm {
     }
 
     public void runSecondChance() {
+        System.out.println("Executando runSecondChance...");
+        System.out.println("Estado atual da lista FIFO: " + fifoOrder);
         if (fifoOrder.isEmpty()) {
-            System.out.println("Passou por aqui!");
+            System.out.println("Lista FIFO está vazia. Nenhuma ação necessária.");
             return;
         }
 
+        System.out.println("Conseguiu entrar no bloco de execução do algoritmo de Segunda Chance.");
         for (int i = 0; i < fifoOrder.size(); i++) {
             int index = fifoOrder.get(i);
             Page page = virtualMemory.getVirtualMemoryPage(index);
 
             if (page == null) {
+                System.out.println("Página nula para índice: " + index);
                 fifoOrder.remove(i);
                 i--; // Para ajustar o índice após a remoção
                 continue;
             }
 
+            System.out.println("Página no índice " + index + ": " + page);
+
             if (page.isReferenced()) {
-                // Segunda chance. O booleano que guarda se a página foi acessada recentemente é alterada para falso
-                // e a página é jogada para o fim da fila FIFO.
                 page.setReferenced(false);
-                fifoOrder.add(fifoOrder.remove(i));
+                fifoOrder.add(fifoOrder.remove(i)); // Move a página para o fim da fila FIFO
                 i--; // Para ajustar o índice após a movimentação
                 System.out.println("A página de pageTable " + page.getPageTable() + " foi enviada para o fim da fila FIFO.");
             } else {

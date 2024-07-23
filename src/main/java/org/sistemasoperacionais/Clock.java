@@ -1,19 +1,20 @@
 package org.sistemasoperacionais;
 
-public class Clock extends Thread{
+public class Clock extends Thread {
     private int sleepTime;
-    private SecondChanceAlgorithm algorithm;
+    private ClockListener cl;
 
-    public Clock(int sleepTime, SecondChanceAlgorithm algorithm) {
+    public Clock(int sleepTime, ClockListener cl) {
         this.sleepTime = sleepTime;
-        this.algorithm = algorithm;
+        this.cl = cl;
     }
 
-    public void run(){
+    public void run() {
         try {
-            while (true){
+            while (true) {
                 Thread.sleep(sleepTime * 1000L);
-                algorithm.runSecondChance();
+                System.out.println("Clock executando runSecondChance...");
+                cl.tick();
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

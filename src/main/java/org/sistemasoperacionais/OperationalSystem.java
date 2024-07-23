@@ -1,12 +1,10 @@
 package org.sistemasoperacionais;
 
-public class OperationalSystem implements IOperationalSystem{
-
+public class OperationalSystem implements IOperationalSystem {
     private static final int VIRTUAL_MEMORY_SIZE = 8;
     private static final int SWAP_MEMORY_SIZE = 8;
     private static final int PHYSICAL_MEMORY_SIZE = 4;
     private static final int THREAD_SLEEP_SECONDS = 3;
-
 
     SecondChanceAlgorithm algorithm;
 
@@ -21,10 +19,13 @@ public class OperationalSystem implements IOperationalSystem{
         swapMemory = new SwapMemory(SWAP_MEMORY_SIZE);
         algorithm = new SecondChanceAlgorithm(virtualMemory, physicalMemory, swapMemory);
         mmu = new MMU(physicalMemory, swapMemory, virtualMemory);
-        Clock clock = new Clock(THREAD_SLEEP_SECONDS, algorithm);
+        Clock clock = new Clock(THREAD_SLEEP_SECONDS, (ClockListener) mmu);
         clock.start(); // Inicia a Thread Clock assim que o Sistema Operacional é instanciado.
-        Process process1 = new Process(new String[]{"4-W-8", "3-W-41", "4-R", "3-R", "7-W-9", "1-W-63", "1-R", "7-R"}, mmu, 1);
+        Process process1 = new Process(new String[]{"4-W-8", "3-W-41", "4-R", "3-R", "7-W-9", "1-W-63", "1-R", "7-R", "5-W-22"}, mmu, 1);
+        // Testar com a mesma entrada.
+        Process process2 = new Process(new String[]{"4-W-8", "3-W-41", "4-R", "3-R", "7-W-9", "1-W-63", "1-R", "7-R", "5-W-22"}, mmu, 2);
         process1.start();
+        process2.start();
     }
 
     @Override
@@ -37,6 +38,6 @@ public class OperationalSystem implements IOperationalSystem{
     public void write(int virtualIndex, int value, int threadNumber) {
         System.out.print("A thread " + threadNumber);
         // virtualMemory.writeToVirtualMemory(virtualIndex, value);
-        algorithm.getFifoOrder().add(virtualIndex);
+        algorithm.addFifoOrder(virtualIndex);
     }
 }

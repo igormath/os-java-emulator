@@ -1,13 +1,13 @@
 package org.sistemasoperacionais;
 
-public class VirtualMemory {
+public class VirtualMemory{
     private Page[] virtualMemory;
     private int virtualMemorySize;
 
     public VirtualMemory(int virtualMemorySize) {
         this.virtualMemorySize = virtualMemorySize;
         virtualMemory = new Page[virtualMemorySize];
-        for (int i  = 0; i < virtualMemorySize; i++){
+        for (int i = 0; i < virtualMemorySize; i++){
             virtualMemory[i] = new Page();
         }
     }

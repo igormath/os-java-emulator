@@ -43,4 +43,13 @@ public class Page {
     public void setPageTable(int pageTable) {
         this.pageTable = pageTable;
     }
+
+    @Override
+    public String toString() {
+        return "Page{" +
+                "pageTable=" + pageTable +
+                ", present=" + isPresent +
+                ", referenced=" + isReferenced +
+                '}';
+    }
 }

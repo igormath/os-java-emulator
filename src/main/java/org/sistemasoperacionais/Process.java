@@ -18,9 +18,21 @@ public class Process extends Thread{
                 Thread.sleep(100);
                 String[] operation = s.split("-");
                 if (operation[1].equals("R")){
-                    mmu.read(Integer.parseInt(operation[0]), threadNumber);
+                    Thread.sleep(1000);
+                    Integer value = mmu.read(Integer.parseInt(operation[0]), threadNumber);
+                    if (value != null){
+                        System.out.println("A thread " + threadNumber + " leu o valor " + value);
+                    } else {
+                        System.out.println("A thread " + threadNumber + " não conseguiu realizar operação de leitura.");
+                    }
                 } else if (operation[1].equals("W")) {
-                    mmu.write(Integer.parseInt(operation[0]), Integer.parseInt(operation[2]) ,threadNumber);
+                    Thread.sleep(1000);
+                    Integer index = mmu.write(Integer.parseInt(operation[0]), Integer.parseInt(operation[2]) ,threadNumber);
+                    if (index != null){
+                        System.out.println("A thread " + threadNumber + " escreveu o valor " + operation[2] + " no índice " + index + ".");
+                    } else {
+                        System.out.println("A thread " + threadNumber + " não conseguiu realizar operação de escrita.");
+                    }
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
