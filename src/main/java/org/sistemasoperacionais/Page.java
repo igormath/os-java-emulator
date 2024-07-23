@@ -1,17 +1,23 @@
 package org.sistemasoperacionais;
 
-public class VirtualPage {
+public class Page {
     // Se ocorreu acesso recente
     private boolean isReferenced;
     // Se está alocada na memória física
     private boolean isPresent;
     // Endereço em que está salva
-    private int pageTable;
+    private Integer pageTable;
 
-    public VirtualPage(boolean isReferenced, boolean isPresent, int pageTable) {
-        this.isReferenced = isReferenced;
+    public Page(boolean isPresent, boolean isReferenced, Integer pageTable) {
         this.isPresent = isPresent;
+        this.isReferenced = isReferenced;
         this.pageTable = pageTable;
+    }
+
+    public Page() {
+        this.isReferenced = false;
+        this.isPresent = false;
+        this.pageTable = null;
     }
 
     public boolean isPresent() {
@@ -30,11 +36,20 @@ public class VirtualPage {
         isReferenced = referenced;
     }
 
-    public int getPageTable() {
+    public Integer getPageTable() {
         return pageTable;
     }
 
     public void setPageTable(int pageTable) {
         this.pageTable = pageTable;
+    }
+
+    @Override
+    public String toString() {
+        return "Page{" +
+                "pageTable=" + pageTable +
+                ", present=" + isPresent +
+                ", referenced=" + isReferenced +
+                '}';
     }
 }

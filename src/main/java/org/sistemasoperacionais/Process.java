@@ -1,26 +1,49 @@
 package org.sistemasoperacionais;
 
 public class Process extends Thread{
-
-    private OperationalSystem os;
-    //{"4-R", "5-R", "0-R", "4-W-2"};
-    private String[] instructions;
+    private String[] inputArray;
     private int threadNumber;
+    private IMMU mmu;
 
-    public Process(String[] instructions, OperationalSystem os, int threadNumber) {
-        this.instructions = instructions;
-        this.os = os;
+    public Process(String[] inputArray, IMMU mmu, int threadNumber) {
+        this.inputArray = inputArray;
+        this.mmu = mmu;
         this.threadNumber = threadNumber;
     }
 
     @Override
-    public void run(){
-        for (String instruction : instructions) {
-            String[] splitedInstructions = instruction.split("-");
-            if (splitedInstructions[1].equals("R")){
-                os.read(threadNumber, Integer.parseInt(splitedInstructions[0]));
-            } else if (splitedInstructions[1].equals("W")) {
-                os.write(threadNumber, Integer.parseInt(splitedInstructions[2]));
+    public void run() {
+        for (String s : inputArray) {
+            try {
+                Thread.sleep(100);
+                String[] operation = s.split("-");
+                if (operation[1].equals("R")){
+                    if (threadNumber == 1){
+                        Thread.sleep(1500);
+                    } else if (threadNumber == 2){
+                        Thread.sleep(2000);
+                    }
+                    Integer value = mmu.read(Integer.parseInt(operation[0]), threadNumber);
+                    if (value != null){
+                        System.out.println("A thread " + threadNumber + " leu o valor " + value);
+                    } else {
+                        System.out.println("A thread " + threadNumber + " não conseguiu realizar operação de leitura.");
+                    }
+                } else if (operation[1].equals("W")) {
+                    if (threadNumber == 1){
+                        Thread.sleep(1500);
+                    } else if (threadNumber == 2){
+                        Thread.sleep(2000);
+                    }
+                    Integer index = mmu.write(Integer.parseInt(operation[0]), Integer.parseInt(operation[2]) ,threadNumber);
+                    if (index != null){
+                        System.out.println("A thread " + threadNumber + " escreveu o valor " + operation[2] + " no índice " + index + ".");
+                    } else {
+                        System.out.println("A thread " + threadNumber + " não conseguiu realizar operação de escrita.");
+                    }
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
     }
